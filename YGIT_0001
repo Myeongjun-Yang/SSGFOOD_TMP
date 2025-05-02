@@ -1,0 +1,91 @@
+*&---------------------------------------------------------------------*
+*& Report YGIT_0001
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT YGIT_0001 MESSAGE-ID zmmm1.
+
+
+TABLES : zmmt1000.
+
+
+START-OF-SELECTION.
+  MESSAGE s000 WITH '사용할 수 없는 프로그램입니다.' DISPLAY LIKE 'E'.
+  LEAVE LIST-PROCESSING.
+
+  UPDATE zmmt0020
+     SET upnam = sy-uname
+         updat = sy-datum
+         uptim = sy-uzeit
+         notkz = ''
+   WHERE ebeln = '6100000764'
+     AND notkz = 'X'.
+  COMMIT WORK AND WAIT.
+  RETURN.
+
+  DATA : BEGIN OF ls_date,
+           date TYPE dats,
+         END OF ls_date,
+         lt_date LIKE TABLE OF ls_date,
+         BEGIN OF ls_stock,
+           date  TYPE dats,
+           lgort TYPE lgort_d,
+           stock TYPE mard-labst,
+         END OF ls_stock,
+         lt_stock LIKE TABLE OF ls_stock.
+
+  APPEND VALUE #( date = '20230101' ) TO lt_date.
+  APPEND VALUE #( date = '20230201' ) TO lt_date.
+  APPEND VALUE #( date = '20230301' ) TO lt_date.
+  APPEND VALUE #( date = '20230401' ) TO lt_date.
+  APPEND VALUE #( date = '20230501' ) TO lt_date.
+  APPEND VALUE #( date = '20230601' ) TO lt_date.
+  APPEND VALUE #( date = '20230701' ) TO lt_date.
+  APPEND VALUE #( date = '20230801' ) TO lt_date.
+  APPEND VALUE #( date = '20230901' ) TO lt_date.
+  APPEND VALUE #( date = '20231001' ) TO lt_date.
+  APPEND VALUE #( date = '20231101' ) TO lt_date.
+  APPEND VALUE #( date = '20231201' ) TO lt_date.
+  APPEND VALUE #( date = '20240101' ) TO lt_date.
+  APPEND VALUE #( date = '20240201' ) TO lt_date.
+  APPEND VALUE #( date = '20240301' ) TO lt_date.
+  APPEND VALUE #( date = '20240401' ) TO lt_date.
+  APPEND VALUE #( date = '20240501' ) TO lt_date.
+  APPEND VALUE #( date = '20240601' ) TO lt_date.
+  APPEND VALUE #( date = '20240701' ) TO lt_date.
+  APPEND VALUE #( date = '20240801' ) TO lt_date.
+  APPEND VALUE #( date = '20240901' ) TO lt_date.
+  APPEND VALUE #( date = '20241001' ) TO lt_date.
+  APPEND VALUE #( date = '20241101' ) TO lt_date.
+  APPEND VALUE #( date = '20241201' ) TO lt_date.
+  APPEND VALUE #( date = '20250101' ) TO lt_date.
+  APPEND VALUE #( date = '20250201' ) TO lt_date.
+  APPEND VALUE #( date = '20250301' ) TO lt_date.
+  APPEND VALUE #( date = '20250401' ) TO lt_date.
+
+  LOOP AT lt_date INTO ls_date.
+    SELECT @ls_date-date       AS date
+         , storagelocation     AS lgort
+         , SUM( matlwrhsstkqtyinmatlbaseunit ) AS stock
+      FROM imaterialstock
+     WHERE material IN ( '000000000000052292', '000000000000052293' )
+       AND storagelocation IN ( 'J464', 'J492', 'J493', 'J494', 'J502', 'J503', 'J504', 'J505', 'J506', 'J709' )
+       AND matldoclatestpostgdate <= @ls_date-date
+     GROUP BY storagelocation
+      APPENDING TABLE @lt_stock.
+  ENDLOOP.
+
+  RETURN.
+  RETURN.
+  RETURN.
+  RETURN.
+  RETURN.
+  RETURN.
+  RETURN.
+  RETURN.
+
+  DATA : ls_0020 TYPE zmmt0020.
+  SELECT SINGLE * FROM zmmt0020 INTO ls_0020 WHERE matnr LIKE '%000003'  AND werks = '1100'.
+  INSERT zmmt0020 FROM ls_0020.
+  COMMIT WORK AND WAIT.
+  RETURN.
